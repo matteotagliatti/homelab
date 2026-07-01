@@ -21,6 +21,11 @@ services:
         subtitle: "Movies & TV"
         url: "http://100.86.131.106:8096"
         target: "_blank"
+      - name: "Seerr"
+        icon: "fas fa-ticket-alt"
+        subtitle: "Media requests"
+        url: "http://100.86.131.106:5055"
+        target: "_blank"
 
   - name: "Books"
     icon: "fas fa-book"

@@ -82,6 +82,23 @@ services:
       - "8096:8096"
     restart: unless-stopped
 
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    init: true
+    environment:
+      - LOG_LEVEL=${SEERR_LOG_LEVEL:-info}
+      - TZ=${TIMEZONE}
+    ports:
+      - "5055:5055"
+    volumes:
+      - ${CONFIG_DIR}/seerr-config:/app/config:z
+    depends_on:
+      - jellyfin
+      - sonarr
+      - radarr
+    restart: unless-stopped
+
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
