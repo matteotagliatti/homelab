@@ -149,3 +149,21 @@ services:
       - flaresolverr
       - calibre-web-automated
     restart: unless-stopped
+
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: tailscale
+    hostname: ${TS_HOSTNAME:-homelab-bazzite}
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_EXTRA_ARGS=--ssh
+    volumes:
+      - ${CONFIG_DIR}/tailscale:/var/lib/tailscale:z
+      - /dev/net/tun:/dev/net/tun
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
