@@ -86,6 +86,7 @@ services:
     image: ghcr.io/seerr-team/seerr:latest
     container_name: seerr
     init: true
+    user: "${PUID}:${PGID}"
     environment:
       - LOG_LEVEL=${SEERR_LOG_LEVEL:-info}
       - TZ=${TIMEZONE}
