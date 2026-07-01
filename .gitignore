@@ -1,0 +1,8 @@
+# Machine-specific environment (paths, API keys, secrets)
+.env
+.env.*
+!.env.example
+
+# Homer runtime assets from INIT_ASSETS (logo, favicons, …) — config.yml is tracked
+homer/*
+!homer/config.yml
