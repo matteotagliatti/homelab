@@ -131,13 +131,12 @@ services:
     restart: unless-stopped
 
   shelfmark:
-    image: ghcr.io/calibrain/shelfmark-lite:latest
+    image: ghcr.io/calibrain/shelfmark:latest
     container_name: shelfmark
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
-      - EXT_BYPASSER_URL=http://flaresolverr:8191
     volumes:
       - ${CONFIG_DIR}/shelfmark-config:/config:z
       - ${DATA_DIR}/data/books/ingest:/books:z
@@ -146,7 +145,6 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - flaresolverr
       - calibre-web-automated
     restart: unless-stopped
 
