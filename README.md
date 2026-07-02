@@ -84,6 +84,8 @@ Caddy is built with the [Vercel DNS plugin](https://github.com/caddy-dns/vercel)
    podman compose build caddy && podman compose up -d caddy
    ```
 
+On **Fedora / Bazzite**, Podman may try to pull short image names from `registry.fedoraproject.org`. The Caddy `Dockerfile` uses fully qualified `docker.io/library/caddy` references to avoid that.
+
 Caddy will obtain trusted certificates for all hostnames in the Caddyfile. HTTP is redirected to HTTPS automatically.
 
 Note: Vercel limits DNS API calls to **100/hour**. First startup requests certs for ~10 hostnames; renewals are infrequent.
