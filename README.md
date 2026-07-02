@@ -20,18 +20,13 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 - Volume mounts use the `:z` SELinux flag, which is required on Fedora-based systems like Bazzite when bind-mounting host paths into containers.
 - Keep the repo under your home directory (e.g. `/home/user/homelab`). Bazzite's immutable root filesystem is not meant for mutable app data — use `HOMELAB_DIR`, `CONFIG_DIR`, and `DATA_DIR` under `/home/user` instead.
 - Install [Docker](https://docs.docker.com/engine/install/) or use Podman with `podman-compose` / `docker compose` compatibility. Either works; adjust commands if you prefer rootless Podman.
-- **Rootless Podman and Caddy ports:** rootless Podman cannot bind host ports below 1024. The stack defaults to **8880** (HTTP) and **8443** (HTTPS) — 8080 is already used by qBittorrent. Use `https://homelab.mtttgl.dev:8443` until you enable standard ports.
-
-  **Standard ports 80/443 (recommended once configured):**
+- **Rootless Podman — required for `https://homelab.mtttgl.dev` (ports 80/443):** run this **once** on the server before starting Caddy:
   ```bash
-  # immediate effect
   sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
-  # persist across reboots
   echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-privileged-ports.conf
+  sysctl net.ipv4.ip_unprivileged_port_start   # must print 80
   ```
-  Verify: `sysctl net.ipv4.ip_unprivileged_port_start` should print `80`.
-
-  Then in `.env` set `CADDY_HTTP_PORT=80` and `CADDY_HTTPS_PORT=443`, restart Caddy, and use normal URLs without `:8443`.
+  Without this, rootless Podman cannot bind port 80 and Caddy will not start. After sysctl, use `CADDY_HTTP_PORT=80` and `CADDY_HTTPS_PORT=443` in `.env` (defaults in `.env.example`).
 - Set `PUID` and `PGID` in `.env`. Use your user IDs (`id -u` / `id -g`) for most services. On **rootless Podman**, LinuxServer images often need `PUID=0` and `PGID=0` so container root maps to your host user (see file permissions in `CONFIG_DIR` / `DATA_DIR`).
 
 ## Setup
@@ -53,13 +48,20 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
    mkdir -p ~/data/{media,torrents,books/ingest,books/library}
    ```
 
-5. Start the stack:
+5. **Rootless Podman only:** allow binding ports 80/443 (skip if using Docker, or if already done):
 
    ```bash
-   docker compose up -d
+   sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
+   echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-privileged-ports.conf
    ```
 
-6. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy) or **http://localhost:8081** directly.
+6. Start the stack:
+
+   ```bash
+   podman compose up -d
+   ```
+
+7. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy) or **http://localhost:8081** directly.
 
 ## Caddy reverse proxy
 
