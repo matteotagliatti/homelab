@@ -1,0 +1,69 @@
+# Trusted HTTPS via Let's Encrypt DNS-01 (Vercel DNS).
+# Works when DNS points to your Tailscale IP — no public port 443 required.
+#
+# Requires in .env:
+#   ACME_EMAIL=you@example.com
+#   VERCEL_API_TOKEN=...  (Vercel account token with DNS access)
+
+{
+	email {$ACME_EMAIL}
+	acme_dns vercel {env.VERCEL_API_TOKEN}
+}
+
+(common) {
+	encode gzip zstd
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+	}
+}
+
+{$HOMELAB_HOST} {
+	import common
+	reverse_proxy homer:8080
+}
+
+jellyfin.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy jellyfin:8096
+}
+
+seerr.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy seerr:5055
+}
+
+sonarr.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy sonarr:8989
+}
+
+radarr.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy radarr:7878
+}
+
+bazarr.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy bazarr:6767
+}
+
+prowlarr.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy prowlarr:9696
+}
+
+qbittorrent.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy qbittorrent:8080
+}
+
+cwa.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy calibre-web-automated:8083
+}
+
+shelfmark.{$BASE_DOMAIN} {
+	import common
+	reverse_proxy shelfmark:8084
+}
