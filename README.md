@@ -20,7 +20,13 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 - Volume mounts use the `:z` SELinux flag, which is required on Fedora-based systems like Bazzite when bind-mounting host paths into containers.
 - Keep the repo under your home directory (e.g. `/home/user/homelab`). Bazzite's immutable root filesystem is not meant for mutable app data — use `HOMELAB_DIR`, `CONFIG_DIR`, and `DATA_DIR` under `/home/user` instead.
 - Install [Docker](https://docs.docker.com/engine/install/) or use Podman with `podman-compose` / `docker compose` compatibility. Either works; adjust commands if you prefer rootless Podman.
-- Set `PUID` and `PGID` to your user (`id -u` / `id -g`). On Bazzite the default user is typically `1000`.
+- **Rootless Podman and Caddy (ports 80/443):** by default only root may bind ports below 1024. Allow your user to bind 80/443:
+  ```bash
+  echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-privileged-ports.conf
+  sudo sysctl --system
+  ```
+  Then restart Caddy: `podman compose up -d caddy`. Without this, Caddy fails with `rootlessport cannot expose privileged port 80`.
+- Set `PUID` and `PGID` in `.env`. Use your user IDs (`id -u` / `id -g`) for most services. On **rootless Podman**, LinuxServer images often need `PUID=0` and `PGID=0` so container root maps to your host user (see file permissions in `CONFIG_DIR` / `DATA_DIR`).
 
 ## Setup
 
