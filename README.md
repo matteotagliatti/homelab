@@ -7,6 +7,7 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 ```
 /home/user/homelab/              ← this repo (HOMELAB_DIR)
 ├── docker-compose.yml
+├── caddy/Caddyfile              ← reverse proxy config (tracked in git)
 ├── homer/config.yml             ← dashboard links (tracked in git)
 └── .env                         ← local paths and secrets (not in git)
 
@@ -46,7 +47,58 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
    docker compose up -d
    ```
 
-6. Open the dashboard at **http://localhost:8081** and edit `homer/config.yml` to update service links.
+6. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy) or **http://localhost:8081** directly.
+
+## Caddy reverse proxy
+
+[Caddy](https://caddyserver.com/) terminates HTTPS and routes subdomains to each service. Config lives in `caddy/Caddyfile`.
+
+| URL | Service |
+|---|---|
+| https://homelab.mtttgl.dev | Homer dashboard |
+| https://jellyfin.mtttgl.dev | Jellyfin |
+| https://seerr.mtttgl.dev | Seerr |
+| https://sonarr.mtttgl.dev | Sonarr |
+| https://radarr.mtttgl.dev | Radarr |
+| https://bazarr.mtttgl.dev | Bazarr |
+| https://prowlarr.mtttgl.dev | Prowlarr |
+| https://qbittorrent.mtttgl.dev | qBittorrent |
+| https://cwa.mtttgl.dev | Calibre-Web-Automated |
+| https://shelfmark.mtttgl.dev | Shelfmark |
+
+### DNS (Tailscale)
+
+Point each subdomain (or a wildcard `*.mtttgl.dev`) to your server's **Tailscale IP** in the [Vercel DNS dashboard](https://vercel.com/dashboard/domains).
+
+### TLS (Let's Encrypt via Vercel DNS)
+
+Caddy is built with the [Vercel DNS plugin](https://github.com/caddy-dns/vercel) so certificates are issued with **DNS-01**. That works when your domain points at a **Tailscale IP** — you do not need port 443 open on the public internet.
+
+1. In Vercel, open **Account Settings → Tokens** and create an API token.
+2. Ensure `mtttgl.dev` DNS is managed in Vercel (Domains → your domain → DNS Records).
+3. In `.env`, set:
+   - `ACME_EMAIL` — your email for Let's Encrypt
+   - `VERCEL_API_TOKEN` — the token from step 1
+4. Rebuild and restart Caddy:
+   ```bash
+   podman compose build caddy && podman compose up -d caddy
+   ```
+
+Caddy will obtain trusted certificates for all hostnames in the Caddyfile. HTTP is redirected to HTTPS automatically.
+
+Note: Vercel limits DNS API calls to **100/hour**. First startup requests certs for ~10 hostnames; renewals are infrequent.
+
+If you prefer self-signed certs (no API token), use `tls internal` in the `(common)` block and the stock `caddy:2-alpine` image instead of the custom build.
+
+### After first start
+
+Configure each app to know its public URL (required for redirects and auth):
+
+- **Jellyfin:** Dashboard → Networking → Known Proxies: add `caddy`; set Base URL if needed
+- **Seerr:** Settings → General → Application URL: `https://seerr.mtttgl.dev`
+- **Sonarr / Radarr / Prowlarr:** Settings → General → URL Base: leave empty; set host URL in application settings if prompted
+
+FlareSolverr is intentionally not exposed through Caddy (internal use only).
 
 ## Default credentials
 

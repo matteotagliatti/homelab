@@ -165,3 +165,23 @@ services:
     depends_on:
       - calibre-web-automated
     restart: unless-stopped
+
+  caddy:
+    build: ${HOMELAB_DIR}/caddy
+    container_name: caddy
+    user: "${PUID}:${PGID}"
+    environment:
+      - BASE_DOMAIN=${BASE_DOMAIN}
+      - HOMELAB_HOST=${HOMELAB_HOST}
+      - ACME_EMAIL=${ACME_EMAIL}
+      - VERCEL_API_TOKEN=${VERCEL_API_TOKEN}
+      - TZ=${TIMEZONE}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ${HOMELAB_DIR}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro,z
+      - ${CONFIG_DIR}/caddy-data:/data:z
+      - ${CONFIG_DIR}/caddy-config:/config:z
+    restart: unless-stopped
