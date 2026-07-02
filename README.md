@@ -20,7 +20,7 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 - Volume mounts use the `:z` SELinux flag, which is required on Fedora-based systems like Bazzite when bind-mounting host paths into containers.
 - Keep the repo under your home directory (e.g. `/home/user/homelab`). Bazzite's immutable root filesystem is not meant for mutable app data — use `HOMELAB_DIR`, `CONFIG_DIR`, and `DATA_DIR` under `/home/user` instead.
 - Install [Docker](https://docs.docker.com/engine/install/) or use Podman with `podman-compose` / `docker compose` compatibility. Either works; adjust commands if you prefer rootless Podman.
-- **Rootless Podman and Caddy ports:** rootless Podman cannot bind host ports below 1024. The stack defaults to **8080** (HTTP) and **8443** (HTTPS) so it starts without extra setup. Use `https://homelab.mtttgl.dev:8443` until you enable standard ports.
+- **Rootless Podman and Caddy ports:** rootless Podman cannot bind host ports below 1024. The stack defaults to **8880** (HTTP) and **8443** (HTTPS) — 8080 is already used by qBittorrent. Use `https://homelab.mtttgl.dev:8443` until you enable standard ports.
 
   **Standard ports 80/443 (recommended once configured):**
   ```bash
