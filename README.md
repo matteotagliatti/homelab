@@ -74,6 +74,8 @@ Point each subdomain (or a wildcard `*.mtttgl.dev`) to your server's **Tailscale
 
 Caddy is built with the [Vercel DNS plugin](https://github.com/caddy-dns/vercel) so certificates are issued with **DNS-01**. That works when your domain points at a **Tailscale IP** — you do not need port 443 open on the public internet.
 
+The build pins **Caddy 2.9.1** because the Vercel libdns provider has not been updated for libdns v1 (required by Caddy 2.10+).
+
 1. In Vercel, open **Account Settings → Tokens** and create an API token.
 2. Ensure `mtttgl.dev` DNS is managed in Vercel (Domains → your domain → DNS Records).
 3. In `.env`, set:
