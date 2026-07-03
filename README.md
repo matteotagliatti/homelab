@@ -5,14 +5,23 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 ## Directory layout
 
 ```
-/home/user/homelab/              ← this repo (HOMELAB_DIR)
+/home/user/homelab/                    ← this repo (HOMELAB_DIR)
 ├── docker-compose.yml
-├── caddy/Caddyfile              ← reverse proxy config (tracked in git)
-├── homer/config.yml             ← dashboard links (tracked in git)
-└── .env                         ← local paths and secrets (not in git)
+├── .env.example                       ← copy to .env (not in git)
+├── caddy/
+│   ├── Caddyfile                      ← reverse proxy routes (tracked)
+│   └── Dockerfile                     ← Caddy + Vercel DNS plugin (tracked)
+└── homer/
+    └── config.yml                     ← dashboard links (tracked)
 
-/home/user/homelab-config/       ← service configs (CONFIG_DIR, not in git)
-/home/user/data/                 ← media, torrents, books (DATA_DIR, not in git)
+/home/user/homelab-config/             ← service configs (CONFIG_DIR, not in git)
+
+/home/user/data/                       ← media & downloads (DATA_DIR, not in git)
+├── media/                             ← Jellyfin library
+├── torrents/                          ← qBittorrent downloads
+└── books/
+    ├── ingest/                        ← CWA + Shelfmark drop folder
+    └── library/                       ← Calibre library
 ```
 
 ## Bazzite notes
@@ -55,34 +64,49 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
    echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-privileged-ports.conf
    ```
 
-6. Start the stack:
+6. **Tailscale access from other devices:** allow HTTP/HTTPS through firewalld on the Tailscale interface:
+
+   ```bash
+   sudo firewall-cmd --permanent --zone=trusted --add-interface=tailscale0
+   sudo firewall-cmd --reload
+   ```
+
+7. Start the stack:
 
    ```bash
    podman compose up -d
    ```
 
-7. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy) or **http://localhost:8081** directly.
+8. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy, Tailscale connected) or **http://localhost:8081** directly.
 
 ## Caddy reverse proxy
 
 [Caddy](https://caddyserver.com/) terminates HTTPS and routes subdomains to each service. Config lives in `caddy/Caddyfile`.
 
-| URL | Service |
-|---|---|
-| https://homelab.mtttgl.dev | Homer dashboard |
-| https://jellyfin.mtttgl.dev | Jellyfin |
-| https://seerr.mtttgl.dev | Seerr |
-| https://sonarr.mtttgl.dev | Sonarr |
-| https://radarr.mtttgl.dev | Radarr |
-| https://bazarr.mtttgl.dev | Bazarr |
-| https://prowlarr.mtttgl.dev | Prowlarr |
-| https://qbittorrent.mtttgl.dev | qBittorrent |
-| https://cwa.mtttgl.dev | Calibre-Web-Automated |
-| https://shelfmark.mtttgl.dev | Shelfmark |
-
 ### DNS (Tailscale)
 
 Point each subdomain (or a wildcard `*.mtttgl.dev`) to your server's **Tailscale IP** in the [Vercel DNS dashboard](https://vercel.com/dashboard/domains).
+
+### Firewall (Tailscale)
+
+DNS pointing at your Tailscale IP is not enough on its own. Bazzite/Fedora **firewalld** often allows connections from the server itself but **blocks HTTP/HTTPS from other Tailscale devices** (phone, laptop, etc.).
+
+Allow traffic on the Tailscale interface:
+
+```bash
+sudo firewall-cmd --permanent --zone=trusted --add-interface=tailscale0
+sudo firewall-cmd --reload
+```
+
+Verify:
+
+```bash
+sudo firewall-cmd --list-all --zone=trusted
+```
+
+You should see `tailscale0` in **interfaces**. Then other devices on your tailnet can reach `https://homelab.mtttgl.dev` (with Tailscale connected).
+
+If it still fails, confirm Caddy is on ports 80/443 and test from another device by opening `https://<tailscale-ip>` in a browser — a certificate warning means the network path works and DNS is the next thing to check.
 
 ### TLS (Let's Encrypt via Vercel DNS)
 
