@@ -3,7 +3,7 @@ title: "Homelab"
 subtitle: "Local services"
 icon: "fas fa-home"
 
-header: true
+header: false
 footer: false
 
 theme: default
