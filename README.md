@@ -1,6 +1,6 @@
 # Homelab
 
-Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzite](https://bazzite.gg/)** (Fedora Atomic / immutable desktop).
+Docker Compose stack for a personal media homelab, tuned for **[Bazzite](https://bazzite.gg/)** (Fedora Atomic / immutable desktop).
 
 ## Directory layout
 
@@ -18,10 +18,7 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 
 /home/user/data/                       ← media & downloads (DATA_DIR, not in git)
 ├── media/                             ← Jellyfin library
-├── torrents/                          ← qBittorrent downloads
-└── books/
-    ├── ingest/                        ← CWA + Shelfmark drop folder
-    └── library/                       ← Calibre library
+└── torrents/                          ← qBittorrent downloads
 ```
 
 ## Bazzite notes
@@ -54,7 +51,7 @@ Docker Compose stack for a personal media and ebook homelab, tuned for **[Bazzit
 
    ```bash
    mkdir -p ~/homelab-config
-   mkdir -p ~/data/{media,torrents,books/ingest,books/library}
+   mkdir -p ~/data/{media,torrents}
    ```
 
 5. **Rootless Podman only:** allow binding ports 80/443 (skip if using Docker, or if already done):
@@ -137,7 +134,6 @@ If you prefer self-signed certs (no API token), use `tls internal` in the `(comm
 Configure each app to know its public URL (required for redirects and auth):
 
 - **Jellyfin:** Dashboard → Networking → Known Proxies: add `caddy`; set Base URL if needed
-- **Seerr:** Settings → General → Application URL: `https://seerr.mtttgl.dev`
 - **Sonarr / Radarr / Prowlarr:** Settings → General → URL Base: leave empty; set host URL in application settings if prompted
 
 FlareSolverr is intentionally not exposed through Caddy (internal use only).
@@ -158,9 +154,3 @@ docker logs qbittorrent 2>&1 | grep -A1 "temporary password"
 Look for a line like: `A temporary password is provided for this session: …`
 
 Set your own password under **Settings → Web UI** after logging in. If you skip this, a new random password is generated on every container restart.
-
-### Calibre-Web-Automated
-
-Default login on first start: `admin` / `admin123` — change this immediately in the web UI.
-
-Optional: set `HARDCOVER_TOKEN` in `.env` for Hardcover metadata. After CWA is running, you can uncomment the `app.db` mount in `docker-compose.yml` to let Shelfmark reuse CWA users for login.

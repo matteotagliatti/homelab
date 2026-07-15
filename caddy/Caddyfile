@@ -28,11 +28,6 @@ jellyfin.{$BASE_DOMAIN} {
 	reverse_proxy jellyfin:8096
 }
 
-seerr.{$BASE_DOMAIN} {
-	import common
-	reverse_proxy seerr:5055
-}
-
 sonarr.{$BASE_DOMAIN} {
 	import common
 	reverse_proxy sonarr:8989
@@ -56,14 +51,4 @@ prowlarr.{$BASE_DOMAIN} {
 qbittorrent.{$BASE_DOMAIN} {
 	import common
 	reverse_proxy qbittorrent:8080
-}
-
-cwa.{$BASE_DOMAIN} {
-	import common
-	reverse_proxy calibre-web-automated:8083
-}
-
-shelfmark.{$BASE_DOMAIN} {
-	import common
-	reverse_proxy shelfmark:8084
 }

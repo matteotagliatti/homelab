@@ -82,24 +82,6 @@ services:
       - "8096:8096"
     restart: unless-stopped
 
-  seerr:
-    image: ghcr.io/seerr-team/seerr:latest
-    container_name: seerr
-    init: true
-    user: "${PUID}:${PGID}"
-    environment:
-      - LOG_LEVEL=${SEERR_LOG_LEVEL:-info}
-      - TZ=${TIMEZONE}
-    ports:
-      - "5055:5055"
-    volumes:
-      - ${CONFIG_DIR}/seerr-config:/app/config:z
-    depends_on:
-      - jellyfin
-      - sonarr
-      - radarr
-    restart: unless-stopped
-
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -128,42 +110,6 @@ services:
       - ${HOMELAB_DIR}/homer:/www/assets:z
     ports:
       - "8081:8080"
-    restart: unless-stopped
-
-  calibre-web-automated:
-    image: crocodilestick/calibre-web-automated:latest
-    container_name: calibre-web-automated
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TIMEZONE}
-      - HARDCOVER_TOKEN=${HARDCOVER_TOKEN:-}
-      - NETWORK_SHARE_MODE=false
-      - CWA_PORT_OVERRIDE=8083
-    volumes:
-      - ${CONFIG_DIR}/cwa-config:/config:z
-      - ${DATA_DIR}/data/books/ingest:/cwa-book-ingest:z
-      - ${DATA_DIR}/data/books/library:/calibre-library:z
-    ports:
-      - "8083:8083"
-    restart: unless-stopped
-
-  shelfmark:
-    image: ghcr.io/calibrain/shelfmark:latest
-    container_name: shelfmark
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${CONFIG_DIR}/shelfmark-config:/config:z
-      - ${DATA_DIR}/data/books/ingest:/books:z
-      # Uncomment after CWA first run to reuse its user database for login:
-      # - ${CONFIG_DIR}/cwa-config/app.db:/auth/app.db:ro
-    ports:
-      - "8084:8084"
-    depends_on:
-      - calibre-web-automated
     restart: unless-stopped
 
   caddy:
