@@ -56,18 +56,6 @@ services:
       - "9696:9696"
     restart: unless-stopped
 
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - LOG_HTML=${LOG_HTML:-false}
-      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-      - TZ=${TIMEZONE}
-    ports:
-      - "8191:8191"
-    restart: unless-stopped
-
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
@@ -99,26 +87,12 @@ services:
       - "6881:6881/udp"
     restart: unless-stopped
 
-  homer:
-    image: b4bz/homer:latest
-    container_name: homer
-    user: "${PUID}:${PGID}"
-    environment:
-      - INIT_ASSETS=1
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${HOMELAB_DIR}/homer:/www/assets:z
-    ports:
-      - "8081:8080"
-    restart: unless-stopped
-
   caddy:
     build: ${HOMELAB_DIR}/caddy
     container_name: caddy
     user: "${PUID}:${PGID}"
     environment:
       - BASE_DOMAIN=${BASE_DOMAIN}
-      - HOMELAB_HOST=${HOMELAB_HOST}
       - ACME_EMAIL=${ACME_EMAIL}
       - VERCEL_API_TOKEN=${VERCEL_API_TOKEN}
       - TZ=${TIMEZONE}

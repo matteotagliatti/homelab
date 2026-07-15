@@ -18,11 +18,6 @@
 	}
 }
 
-{$HOMELAB_HOST} {
-	import common
-	reverse_proxy homer:8080
-}
-
 jellyfin.{$BASE_DOMAIN} {
 	import common
 	reverse_proxy jellyfin:8096

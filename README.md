@@ -11,8 +11,6 @@ Docker Compose stack for a personal media homelab, tuned for **[Bazzite](https:/
 ├── caddy/
 │   ├── Caddyfile                      ← reverse proxy routes (tracked)
 │   └── Dockerfile                     ← Caddy + Vercel DNS plugin (tracked)
-└── homer/
-    └── config.yml                     ← dashboard links (tracked)
 
 /home/user/homelab-config/             ← service configs (CONFIG_DIR, not in git)
 
@@ -26,7 +24,7 @@ Docker Compose stack for a personal media homelab, tuned for **[Bazzite](https:/
 - Volume mounts use the `:z` SELinux flag, which is required on Fedora-based systems like Bazzite when bind-mounting host paths into containers.
 - Keep the repo under your home directory (e.g. `/home/user/homelab`). Bazzite's immutable root filesystem is not meant for mutable app data — use `HOMELAB_DIR`, `CONFIG_DIR`, and `DATA_DIR` under `/home/user` instead.
 - Install [Docker](https://docs.docker.com/engine/install/) or use Podman with `podman-compose` / `docker compose` compatibility. Either works; adjust commands if you prefer rootless Podman.
-- **Rootless Podman — required for `https://homelab.mtttgl.dev` (ports 80/443):** run this **once** on the server before starting Caddy:
+- **Rootless Podman — required for HTTPS on ports 80/443:** run this **once** on the server before starting Caddy:
   ```bash
   sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
   echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-rootless-privileged-ports.conf
@@ -74,7 +72,7 @@ Docker Compose stack for a personal media homelab, tuned for **[Bazzite](https:/
    podman compose up -d
    ```
 
-8. Open the dashboard at **https://homelab.mtttgl.dev** (via Caddy, Tailscale connected) or **http://localhost:8081** directly.
+8. Open a service at its subdomain, e.g. **https://jellyfin.mtttgl.dev** (via Caddy, Tailscale connected).
 
 ## Caddy reverse proxy
 
@@ -101,7 +99,7 @@ Verify:
 sudo firewall-cmd --list-all --zone=trusted
 ```
 
-You should see `tailscale0` in **interfaces**. Then other devices on your tailnet can reach `https://homelab.mtttgl.dev` (with Tailscale connected).
+You should see `tailscale0` in **interfaces**. Then other devices on your tailnet can reach your services (with Tailscale connected).
 
 If it still fails, confirm Caddy is on ports 80/443 and test from another device by opening `https://<tailscale-ip>` in a browser — a certificate warning means the network path works and DNS is the next thing to check.
 
@@ -135,8 +133,6 @@ Configure each app to know its public URL (required for redirects and auth):
 
 - **Jellyfin:** Dashboard → Networking → Known Proxies: add `caddy`; set Base URL if needed
 - **Sonarr / Radarr / Prowlarr:** Settings → General → URL Base: leave empty; set host URL in application settings if prompted
-
-FlareSolverr is intentionally not exposed through Caddy (internal use only).
 
 ## Default credentials
 
