@@ -150,3 +150,7 @@ docker logs qbittorrent 2>&1 | grep -A1 "temporary password"
 Look for a line like: `A temporary password is provided for this session: …`
 
 Set your own password under **Settings → Web UI** after logging in. If you skip this, a new random password is generated on every container restart.
+
+## File Ownership
+
+If a file is downloaded outside of the container run `chcon -R -t container_file_t /home/matteo/data/media` to change SELinux security label on the files.
