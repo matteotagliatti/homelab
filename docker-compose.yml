@@ -46,6 +46,9 @@ services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:develop
     container_name: prowlarr
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -85,6 +88,19 @@ services:
       - "8080:8080"
       - "6881:6881"
       - "6881:6881/udp"
+    restart: unless-stopped
+
+  flaresolverr:
+    image: docker.io/21hsmw/flaresolverr:nodriver
+    container_name: flaresolverr
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Europe/Rome
+    ports:
+      - 8191:8191
     restart: unless-stopped
 
   caddy:
